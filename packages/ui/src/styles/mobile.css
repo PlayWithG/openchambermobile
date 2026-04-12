@@ -383,6 +383,97 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   Mobile PWA Optimization — Claude App Style
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Layout height variables */
+:root.mobile-pointer:not(.desktop-runtime) {
+  --mobile-header-height: 40px;
+  --mobile-bottom-nav-height: 48px;
+}
+
+/* ── Compact header on mobile (~40px) ── */
+/* Reduce header padding so total height approaches 40px */
+@media (max-width: 768px) {
+  :root.mobile-pointer:not(.desktop-runtime) .header-safe-area [class*="app-region-drag"] {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Shrink the tab strip buttons to save vertical space */
+  :root.mobile-pointer:not(.desktop-runtime) .header-safe-area button[role="tab"],
+  :root.mobile-pointer:not(.desktop-runtime) .header-safe-area [class*="mobileHeaderIconButtonClass"] {
+    height: 32px !important;
+    width: 32px !important;
+    min-height: 32px;
+  }
+}
+
+/* ── Phase 3: Code Blocks Full-Width on Mobile ── */
+@media (max-width: 768px) {
+  :root.mobile-pointer:not(.desktop-runtime) [data-component="markdown-code"] {
+    /* Break out of chat-column padding to fill full width */
+    margin-left: calc(-1 * clamp(0.75rem, 2.5vw, 1rem));
+    margin-right: calc(-1 * clamp(0.75rem, 2.5vw, 1rem));
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    /* Tighter vertical spacing */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Code font size: 13px on mobile for balance */
+  :root.mobile-pointer:not(.desktop-runtime) [data-component="markdown-code"] pre,
+  :root.mobile-pointer:not(.desktop-runtime) [data-component="markdown-code"] code {
+    font-size: 13px !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  /* Always show code action buttons on mobile (no hover needed) */
+  :root.mobile-pointer:not(.desktop-runtime) [data-component="markdown-code"] [data-code-actions] {
+    opacity: 1 !important;
+  }
+}
+
+/* AMOLED-friendly code blocks in dark mode */
+:root.dark.mobile-pointer:not(.desktop-runtime) [data-component="markdown-code"] {
+  --surface-elevated: #0a0a0a;
+  background-color: #0a0a0a;
+}
+
+/* ── Phase 1: Bottom Navigation Bar ── */
+.mobile-bottom-nav {
+  height: calc(var(--mobile-bottom-nav-height, 48px) + var(--oc-safe-area-bottom-visual, 0px));
+  padding-bottom: var(--oc-safe-area-bottom-visual, 0px);
+  background: var(--background);
+  border-top: 1px solid hsl(var(--border) / 0.6);
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  /* Smooth show/hide when keyboard opens/closes */
+  transition: max-height 0.18s ease, opacity 0.18s ease;
+  max-height: calc(var(--mobile-bottom-nav-height, 48px) + var(--oc-safe-area-bottom-visual, 0px) + 4px);
+  overflow: hidden;
+}
+
+/* Hide bottom nav when keyboard is open */
+:root.mobile-pointer:not(.desktop-runtime) .mobile-bottom-nav.keyboard-open {
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── Phase 2: Reduce message gap on mobile ── */
+@media (max-width: 768px) {
+  :root.mobile-pointer:not(.desktop-runtime) .message-turn-gap {
+    margin-bottom: 8px;
+  }
+}
+
 /* Phase 6: Home indicator blur gradient fix */
 @media (display-mode: standalone) and (max-width: 768px) {
   .pwa-dialog-content {

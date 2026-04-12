@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, useMotionValue, animate } from 'motion/react';
 import { Header } from './Header';
+import { MobileBottomNav } from './MobileBottomNav';
 import { BottomTerminalDock } from './BottomTerminalDock';
 import { Sidebar, SIDEBAR_CONTENT_WIDTH } from './Sidebar';
 import { RightSidebar, RIGHT_SIDEBAR_CONTENT_WIDTH } from './RightSidebar';
@@ -71,6 +72,7 @@ export const MainLayout: React.FC = () => {
     const multiRunLauncherPrefillPrompt = useUIStore((state) => state.multiRunLauncherPrefillPrompt);
 
     const { isMobile } = useDeviceInfo();
+    const isKeyboardOpen = useUIStore((state) => state.isKeyboardOpen);
     const isDesktopShellRuntime = React.useMemo(() => isDesktopShell(), []);
     const sidebarWidth = useUIStore((state) => state.sidebarWidth);
     const rightSidebarWidth = useUIStore((state) => state.rightSidebarWidth);
@@ -817,6 +819,11 @@ export const MainLayout: React.FC = () => {
                             )}
                         </main>
                     </div>
+
+                    {/* Mobile bottom navigation */}
+                    {!isSettingsDialogOpen && (
+                        <MobileBottomNav keyboardOpen={isKeyboardOpen} />
+                    )}
 
                     {/* Mobile settings: full screen */}
                     {isSettingsDialogOpen && (

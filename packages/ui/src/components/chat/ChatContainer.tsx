@@ -110,10 +110,51 @@ const ChatViewport = React.memo(({
     sessionPermissions,
     isProgrammaticFollowActive,
 }: ChatViewportProps) => {
+    // On mobile: skip ScrollShadow (saves space, avoids painting overhead)
+    const scrollContent = (
+        <div className="relative z-0 min-h-full">
+            <MessageList
+                ref={messageListRef}
+                sessionKey={currentSessionId}
+                turnStart={turnStart}
+                disableStaging={pendingRevealWork}
+                messages={renderedMessages}
+                sessionIsWorking={sessionIsWorking}
+                activeStreamingMessageId={streamingMessageId}
+                activeStreamingPhase={activeStreamingPhase}
+                retryOverlay={retryOverlay}
+                onMessageContentChange={handleMessageContentChange}
+                getAnimationHandlers={getAnimationHandlers}
+                hasMoreAbove={hasMoreAboveTurns}
+                isLoadingOlder={isLoadingOlder}
+                onLoadOlder={handleLoadOlder}
+                scrollToBottom={scrollToBottom}
+                scrollRef={scrollRef}
+            />
+            {(sessionQuestions.length > 0 || sessionPermissions.length > 0) && (
+                <div>
+                    {sessionQuestions.map((question) => (
+                        <QuestionCard key={question.id} question={question} />
+                    ))}
+                    {sessionPermissions.map((permission) => (
+                        <PermissionCard key={permission.id} permission={permission} />
+                    ))}
+                </div>
+            )}
+
+            <div className="mb-3">
+                <StatusRowContainer />
+            </div>
+
+            <div className="flex-shrink-0" style={{ height: isMobile ? '40px' : '10vh' }} aria-hidden="true" />
+        </div>
+    );
+
     return (
         <div
             className={cn(
                 'relative min-h-0',
+                isMobile && 'mobile-edge-to-edge',
                 isDesktopExpandedInput
                     ? 'absolute inset-0 opacity-0 pointer-events-none'
                     : 'flex-1'
@@ -121,52 +162,28 @@ const ChatViewport = React.memo(({
             aria-hidden={isDesktopExpandedInput}
         >
             <div className="absolute inset-0">
-                <ScrollShadow
-                    className="absolute inset-0 overflow-y-auto overflow-x-hidden z-0 chat-scroll overlay-scrollbar-target"
-                    ref={scrollRef}
-                    style={CHAT_SCROLL_STYLE}
-                    observeMutations={false}
-                    hideTopShadow={isMobile && stickyUserHeader}
-                    data-scroll-shadow="true"
-                    data-scrollbar="chat"
-                >
-                    <div className="relative z-0 min-h-full">
-                        <MessageList
-                            ref={messageListRef}
-                            sessionKey={currentSessionId}
-                            turnStart={turnStart}
-                            disableStaging={pendingRevealWork}
-                            messages={renderedMessages}
-                            sessionIsWorking={sessionIsWorking}
-                            activeStreamingMessageId={streamingMessageId}
-                            activeStreamingPhase={activeStreamingPhase}
-                            retryOverlay={retryOverlay}
-                            onMessageContentChange={handleMessageContentChange}
-                            getAnimationHandlers={getAnimationHandlers}
-                            hasMoreAbove={hasMoreAboveTurns}
-                            isLoadingOlder={isLoadingOlder}
-                            onLoadOlder={handleLoadOlder}
-                            scrollToBottom={scrollToBottom}
-                            scrollRef={scrollRef}
-                        />
-                        {(sessionQuestions.length > 0 || sessionPermissions.length > 0) && (
-                            <div>
-                                {sessionQuestions.map((question) => (
-                                    <QuestionCard key={question.id} question={question} />
-                                ))}
-                                {sessionPermissions.map((permission) => (
-                                    <PermissionCard key={permission.id} permission={permission} />
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="mb-3">
-                            <StatusRowContainer />
-                        </div>
-
-                        <div className="flex-shrink-0" style={{ height: isMobile ? '40px' : '10vh' }} aria-hidden="true" />
+                {isMobile ? (
+                    <div
+                        className="absolute inset-0 overflow-y-auto overflow-x-hidden z-0 chat-scroll overlay-scrollbar-target"
+                        ref={scrollRef}
+                        style={CHAT_SCROLL_STYLE}
+                        data-scrollbar="chat"
+                    >
+                        {scrollContent}
                     </div>
-                </ScrollShadow>
+                ) : (
+                    <ScrollShadow
+                        className="absolute inset-0 overflow-y-auto overflow-x-hidden z-0 chat-scroll overlay-scrollbar-target"
+                        ref={scrollRef}
+                        style={CHAT_SCROLL_STYLE}
+                        observeMutations={false}
+                        hideTopShadow={stickyUserHeader}
+                        data-scroll-shadow="true"
+                        data-scrollbar="chat"
+                    >
+                        {scrollContent}
+                    </ScrollShadow>
+                )}
                 <OverlayScrollbar containerRef={scrollRef} suppressVisibility={isProgrammaticFollowActive} userIntentOnly observeMutations={false} />
             </div>
         </div>

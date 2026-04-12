@@ -8,7 +8,7 @@ import remend from 'remend';
 import { FadeInOnReveal } from './message/FadeInOnReveal';
 import type { Part } from '@opencode-ai/sdk/v2';
 import { cn } from '@/lib/utils';
-import { RiFileCopyLine, RiCheckLine, RiDownloadLine } from '@remixicon/react';
+import { RiFileCopyLine, RiCheckLine, RiDownloadLine, RiFullscreenLine } from '@remixicon/react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { toast } from '@/components/ui';
 import { copyTextToClipboard } from '@/lib/clipboard';
@@ -23,6 +23,8 @@ import { useDeviceInfo } from '@/lib/device';
 import { useEffectiveDirectory } from '@/hooks/useEffectiveDirectory';
 import { useRuntimeAPIs } from '@/hooks/useRuntimeAPIs';
 import type { EditorAPI } from '@/lib/api/types';
+
+const MobileCodeViewer = React.lazy(() => import('./message/parts/MobileCodeViewer').then(m => ({ default: m.MobileCodeViewer })));
 
 const useCurrentMermaidTheme = () => {
   const themeSystem = useOptionalThemeSystem();
@@ -654,6 +656,8 @@ const MarkdownCodeBlock: React.FC<{
   syntaxTheme: { [key: string]: React.CSSProperties };
 }> = ({ code, language, syntaxTheme }) => {
   const [copied, setCopied] = React.useState(false);
+  const [viewerOpen, setViewerOpen] = React.useState(false);
+  const { isMobile } = useDeviceInfo();
 
   const handleCopy = React.useCallback(async () => {
     const result = await copyTextToClipboard(code);
@@ -666,7 +670,23 @@ const MarkdownCodeBlock: React.FC<{
     <div data-component="markdown-code" className="my-4 group overflow-hidden rounded-2xl border border-border/80 bg-[var(--surface-elevated)]">
       <div className="flex items-center justify-between border-b border-border/70 px-3 py-1.5">
         <span className="font-mono text-[13px] text-muted-foreground">{language}</span>
-        <div className="opacity-0 transition-opacity group-hover:opacity-100">
+        <div
+          data-code-actions=""
+          className={cn(
+            'flex items-center gap-0.5 transition-opacity',
+            isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+          )}
+        >
+          {isMobile && (
+            <button
+              type="button"
+              onClick={() => setViewerOpen(true)}
+              className="p-1 rounded hover:bg-interactive-hover/60 text-muted-foreground hover:text-foreground transition-colors"
+              title="Expand code"
+            >
+              <RiFullscreenLine className="size-3.5" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => { void handleCopy(); }}
@@ -677,7 +697,10 @@ const MarkdownCodeBlock: React.FC<{
           </button>
         </div>
       </div>
-      <div className="px-3 py-2.5">
+      <div
+        className="px-3 py-2.5 overflow-x-auto"
+        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+      >
         <SyntaxHighlighter
           language={language}
           style={syntaxTheme}
@@ -688,6 +711,17 @@ const MarkdownCodeBlock: React.FC<{
           {code}
         </SyntaxHighlighter>
       </div>
+      {isMobile && viewerOpen && (
+        <React.Suspense fallback={null}>
+          <MobileCodeViewer
+            code={code}
+            language={language}
+            syntaxTheme={syntaxTheme}
+            isOpen={viewerOpen}
+            onClose={() => setViewerOpen(false)}
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 };

@@ -47,6 +47,7 @@ import 'prismjs/components/prism-scss';
 // ── Threshold: files smaller than this render without virtualization ──
 const VIRTUALIZE_THRESHOLD = 80;
 const ROW_HEIGHT = 20; // px — matches typography-code line-height
+const ROW_HEIGHT_MOBILE = 24; // px — larger for readability on small screens
 
 // ── Types ────────────────────────────────────────────────────────────
 export interface CodeLine {
@@ -61,12 +62,14 @@ interface VirtualizedCodeBlockProps {
   lines: CodeLine[];
   language: string;
   syntaxTheme: Record<string, React.CSSProperties>;
-  /** Max visible height in CSS (default: 60vh) */
+  /** Max visible height in CSS (default: 60vh, 50vh on mobile) */
   maxHeight?: string;
-  /** Show line numbers (default: true) */
+  /** Show line numbers (default: true on desktop, false on mobile) */
   showLineNumbers?: boolean;
   /** Styles per line type (for diffs) */
   lineStyles?: (line: CodeLine) => React.CSSProperties | undefined;
+  /** Mobile mode: larger row height, smaller default maxHeight */
+  isMobile?: boolean;
 }
 
 const toKebabCase = (value: string): string => value.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
@@ -181,10 +184,16 @@ export const VirtualizedCodeBlock: React.FC<VirtualizedCodeBlockProps> = React.m
     lines,
     language,
     syntaxTheme,
-    maxHeight = '60vh',
-    showLineNumbers = true,
+    maxHeight,
+    showLineNumbers,
     lineStyles,
+    isMobile = false,
   } = props;
+
+  const effectiveRowHeight = isMobile ? ROW_HEIGHT_MOBILE : ROW_HEIGHT;
+  const effectiveMaxHeight = maxHeight ?? (isMobile ? '50vh' : '60vh');
+  const effectiveShowLineNumbers = showLineNumbers ?? !isMobile;
+
   const prismThemeCss = React.useMemo(() => buildPrismThemeCss(syntaxTheme), [syntaxTheme]);
 
   const shouldVirtualize = lines.length > VIRTUALIZE_THRESHOLD;
@@ -194,7 +203,7 @@ export const VirtualizedCodeBlock: React.FC<VirtualizedCodeBlockProps> = React.m
     return (
       <div
         className="typography-code font-mono w-full min-w-0 oc-virtualized-prism"
-        style={{ maxHeight, overflow: 'auto' }}
+        style={{ maxHeight: effectiveMaxHeight, overflow: 'auto', WebkitOverflowScrolling: 'touch' }}
       >
         {prismThemeCss ? <style>{prismThemeCss}</style> : null}
         {lines.map((line, idx) => (
@@ -202,7 +211,8 @@ export const VirtualizedCodeBlock: React.FC<VirtualizedCodeBlockProps> = React.m
             key={idx}
             line={line}
             language={language}
-            showLineNumbers={showLineNumbers}
+            showLineNumbers={effectiveShowLineNumbers}
+            rowHeight={effectiveRowHeight}
             style={lineStyles?.(line)}
           />
         ))}
@@ -216,9 +226,10 @@ export const VirtualizedCodeBlock: React.FC<VirtualizedCodeBlockProps> = React.m
       lines={lines}
       language={language}
       prismThemeCss={prismThemeCss}
-      maxHeight={maxHeight}
-      showLineNumbers={showLineNumbers}
+      maxHeight={effectiveMaxHeight}
+      showLineNumbers={effectiveShowLineNumbers}
       lineStyles={lineStyles}
+      rowHeight={effectiveRowHeight}
     />
   );
 });
@@ -233,6 +244,7 @@ interface VirtualizedRowsProps {
   maxHeight: string;
   showLineNumbers: boolean;
   lineStyles?: (line: CodeLine) => React.CSSProperties | undefined;
+  rowHeight: number;
 }
 
 const VirtualizedRows: React.FC<VirtualizedRowsProps> = React.memo(({
@@ -242,13 +254,14 @@ const VirtualizedRows: React.FC<VirtualizedRowsProps> = React.memo(({
   maxHeight,
   showLineNumbers,
   lineStyles,
+  rowHeight,
 }) => {
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
     count: lines.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 20, // render 20 extra rows above/below viewport
   });
 
@@ -256,7 +269,7 @@ const VirtualizedRows: React.FC<VirtualizedRowsProps> = React.memo(({
     <div
       ref={parentRef}
       className="typography-code font-mono w-full min-w-0 oc-virtualized-prism"
-      style={{ maxHeight, overflow: 'auto' }}
+      style={{ maxHeight, overflow: 'auto', WebkitOverflowScrolling: 'touch' }}
     >
       {prismThemeCss ? <style>{prismThemeCss}</style> : null}
       <div
@@ -284,6 +297,7 @@ const VirtualizedRows: React.FC<VirtualizedRowsProps> = React.memo(({
                 line={line}
                 language={language}
                 showLineNumbers={showLineNumbers}
+                rowHeight={rowHeight}
                 style={lineStyles?.(line)}
               />
             </div>
@@ -301,16 +315,17 @@ interface RowProps {
   line: CodeLine;
   language: string;
   showLineNumbers: boolean;
+  rowHeight?: number;
   style?: React.CSSProperties;
 }
 
-const Row: React.FC<RowProps> = React.memo(({ line, language, showLineNumbers, style }) => {
+const Row: React.FC<RowProps> = React.memo(({ line, language, showLineNumbers, rowHeight, style }) => {
   const html = React.useMemo(() => highlightLine(line.text, language), [line.text, language]);
 
   return (
     <div
       className="typography-code font-mono flex w-full min-w-0"
-      style={style}
+      style={rowHeight ? { minHeight: `${rowHeight}px`, ...style } : style}
     >
       {showLineNumbers && (
         <span

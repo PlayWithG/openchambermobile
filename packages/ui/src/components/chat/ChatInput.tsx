@@ -1932,7 +1932,8 @@ const ChatInputComponent: React.FC<ChatInputProps> = ({ onOpenSettings, scrollTo
             ? fallbackPadding
             : paddingTop + paddingBottom;
         const targetLineHeight = Number.isNaN(lineHeight) ? fallbackLineHeight : lineHeight;
-        const maxHeight = targetLineHeight * MAX_VISIBLE_TEXTAREA_LINES + paddingTotal;
+        const maxVisibleLines = isMobile ? 5 : MAX_VISIBLE_TEXTAREA_LINES;
+        const maxHeight = targetLineHeight * maxVisibleLines + paddingTotal;
         const scrollHeight = textarea.scrollHeight || textarea.offsetHeight;
         const nextHeight = Math.min(scrollHeight, maxHeight);
 
@@ -1948,7 +1949,7 @@ const ChatInputComponent: React.FC<ChatInputProps> = ({ onOpenSettings, scrollTo
             }
             return { height: nextHeight, maxHeight };
         });
-    }, [isDesktopExpanded]);
+    }, [isDesktopExpanded, isMobile]);
 
     React.useLayoutEffect(() => {
         const allowShrink = message.length < previousMessageLengthRef.current;
