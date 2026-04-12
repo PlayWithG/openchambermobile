@@ -9,6 +9,7 @@ import { useUIStore } from '@/stores/useUIStore';
 import { useDurationTickerNow } from './useDurationTicker';
 import { MarkdownRenderer } from '../../MarkdownRenderer';
 import { useStreamingTextThrottle } from '../../hooks/useStreamingTextThrottle';
+import { useDeviceInfo } from '@/lib/device';
 
 type PartWithText = Part & { text?: string; content?: string; time?: { start?: number; end?: number } };
 
@@ -93,8 +94,13 @@ export const ReasoningTimelineBlock: React.FC<ReasoningTimelineBlockProps> = ({
     isStreaming = false,
 }) => {
     const [isExpanded, setIsExpanded] = React.useState(false);
+    const { isMobile } = useDeviceInfo();
 
     const summary = React.useMemo(() => getReasoningSummary(text), [text]);
+    const lineCount = React.useMemo(
+        () => text.split('\n').filter((l) => l.trim().length > 0).length,
+        [text]
+    );
     const { label, Icon } = variantConfig[variant];
     const timeStart = typeof time?.start === 'number' && Number.isFinite(time.start) ? time.start : undefined;
     const timeEnd = typeof time?.end === 'number' && Number.isFinite(time.end) ? time.end : undefined;
@@ -144,7 +150,11 @@ export const ReasoningTimelineBlock: React.FC<ReasoningTimelineBlockProps> = ({
 
                 {(summary || (showDuration && typeof timeStart === 'number')) ? (
                     <div className="flex items-center gap-1 flex-1 min-w-0 typography-meta text-muted-foreground/70">
-                        {summary ? <span className="flex-1 min-w-0 truncate">{summary}</span> : null}
+                        {isMobile && !isExpanded && lineCount > 0 ? (
+                            <span className="flex-shrink-0 text-muted-foreground/60">{lineCount} lines</span>
+                        ) : summary ? (
+                            <span className="flex-1 min-w-0 truncate">{summary}</span>
+                        ) : null}
                         {showDuration && typeof timeStart === 'number' ? (
                             <span className="relative flex-shrink-0 tabular-nums text-right">
                                 <span className="text-muted-foreground/80 transition-opacity duration-150">
