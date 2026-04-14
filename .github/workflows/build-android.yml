@@ -39,7 +39,7 @@ jobs:
         working-directory: packages/mobile
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: bunx cap sync android
         working-directory: packages/mobile
 
       - name: Make Gradlew executable
