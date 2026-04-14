@@ -104,6 +104,7 @@ export const MobileCodeViewer: React.FC<MobileCodeViewerProps> = ({
           syntaxTheme={syntaxTheme}
           maxHeight={contentMaxHeight}
           showLineNumbers={true}
+          isMobile={true}
         />
       </div>
     </div>,
