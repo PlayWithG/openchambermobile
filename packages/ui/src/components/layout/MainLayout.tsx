@@ -26,8 +26,11 @@ import { isDesktopShell } from '@/lib/desktop';
 
 import { ChatView, PlanView, GitView, DiffView, TerminalView, FilesView, SettingsView, SettingsWindow, MultiRunWindow } from '@/components/views';
 
-// Mobile drawer width as screen percentage
-const MOBILE_DRAWER_WIDTH_PERCENT = 85;
+// Mobile drawer widths as screen percentage
+const MOBILE_LEFT_DRAWER_WIDTH_PERCENT = 100;  // Session switcher is fullscreen
+const MOBILE_RIGHT_DRAWER_WIDTH_PERCENT = 85;
+// Keep alias for right drawer references below
+const MOBILE_DRAWER_WIDTH_PERCENT = MOBILE_RIGHT_DRAWER_WIDTH_PERCENT;
 const DESKTOP_SIDEBAR_MIN_WIDTH = 250;
 const DESKTOP_SIDEBAR_MAX_WIDTH = 500;
 const DESKTOP_RIGHT_SIDEBAR_MIN_WIDTH = 400;
@@ -108,8 +111,8 @@ export const MainLayout: React.FC = () => {
     // Compute drawer width
     useEffect(() => {
         if (isMobile) {
-            leftDrawerWidth.current = window.innerWidth * (MOBILE_DRAWER_WIDTH_PERCENT / 100);
-            rightDrawerWidth.current = window.innerWidth * (MOBILE_DRAWER_WIDTH_PERCENT / 100);
+            leftDrawerWidth.current = window.innerWidth * (MOBILE_LEFT_DRAWER_WIDTH_PERCENT / 100);
+            rightDrawerWidth.current = window.innerWidth * (MOBILE_RIGHT_DRAWER_WIDTH_PERCENT / 100);
         }
     }, [isMobile]);
 
@@ -698,13 +701,13 @@ export const MainLayout: React.FC = () => {
                         drag="x"
                         dragElastic={0.08}
                         dragMomentum={false}
-                        dragConstraints={{ left: -(leftDrawerWidth.current || window.innerWidth * 0.85), right: 0 }}
+                        dragConstraints={{ left: -(leftDrawerWidth.current || window.innerWidth), right: 0 }}
                         style={{
-                            width: `${MOBILE_DRAWER_WIDTH_PERCENT}%`,
+                            width: `${MOBILE_LEFT_DRAWER_WIDTH_PERCENT}%`,
                             x: leftDrawerX,
                         }}
                         onDragEnd={(_, info) => {
-                            const drawerWidthPx = leftDrawerWidth.current || window.innerWidth * 0.85;
+                            const drawerWidthPx = leftDrawerWidth.current || window.innerWidth;
                             const threshold = drawerWidthPx * 0.3;
                             const velocityThreshold = 500;
                             const currentX = leftDrawerX.get();

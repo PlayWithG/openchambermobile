@@ -545,7 +545,8 @@ const DialogReadContent: React.FC<{
     popup: ToolPopupContent;
     syntaxTheme: Record<string, React.CSSProperties>;
     pierreThemeConfig: PierreThemeConfig;
-}> = React.memo(({ popup, syntaxTheme, pierreThemeConfig }) => {
+    isMobile?: boolean;
+}> = React.memo(({ popup, syntaxTheme, pierreThemeConfig, isMobile }) => {
     const parsedReadOutput = React.useMemo(() => parseReadToolOutput(popup.content), [popup.content]);
 
     const inputMeta = popup.metadata?.input;
@@ -621,7 +622,8 @@ const DialogReadContent: React.FC<{
             lines={codeLines}
             language={detectedLanguage}
             syntaxTheme={syntaxTheme}
-            maxHeight="70vh"
+            maxHeight={isMobile ? '50vh' : '70vh'}
+            isMobile={isMobile}
         />
     );
 });
@@ -1183,7 +1185,7 @@ const ToolOutputDialog: React.FC<ToolOutputDialogProps> = ({ popup, onOpenChange
                                 }
 
                                 if (tool === 'read') {
-                                    return <DialogReadContent popup={popup} syntaxTheme={syntaxTheme} pierreThemeConfig={pierreThemeConfig} />;
+                                    return <DialogReadContent popup={popup} syntaxTheme={syntaxTheme} pierreThemeConfig={pierreThemeConfig} isMobile={isMobile} />;
                                 }
 
                                 // JSON tree viewer for generic JSON outputs
