@@ -55,3 +55,5 @@ dependencies {
 if (project.hasProperty("GOOGLE_SERVICES_ENABLED")) {
     apply from: 'google-services.json'
 }
+
+apply from: 'capacitor.build.gradle'
