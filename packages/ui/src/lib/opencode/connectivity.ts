@@ -183,10 +183,12 @@ export class ConnectivityManager {
 
     if (!wasForeground && this.isForeground) {
       // App moved to foreground — validate liveness before reconnecting
+      // Transition through reconnecting state
+      this.setState('reconnecting');
       this.handleForegroundResume();
     } else if (wasForeground && !this.isForeground) {
-      // App moved to background — mark as disconnected
-      this.setState('disconnected');
+      // App moved to background — mark as paused (app is hidden, not necessarily disconnected)
+      this.setState('paused');
     }
   }
 

@@ -30,6 +30,7 @@ android {
         versionCode 1
         versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -41,33 +42,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    // Enable hardware acceleration for smooth 120Hz rendering
-    defaultConfig {
-        vectorDrawables.useSupportLibrary = true
-    }
 }
 
 dependencies {
     implementation project(':capacitor-android')
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.webkit:webkit:1.10.0'
 }
 
 if (project.hasProperty("GOOGLE_SERVICES_ENABLED")) {
     apply from: 'google-services.json'
-}
-
-// Apply hardware acceleration in the application
-apply plugin: 'com.android.application'
-
-android {
-    defaultConfig {
-        // Hardware acceleration is enabled by default for API level 21+
-        // For explicit control, add:
-        // multiDexEnabled true
-    }
 }

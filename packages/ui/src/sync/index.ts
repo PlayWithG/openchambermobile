@@ -124,6 +124,8 @@ export {
   getSyncSessionStatus,
   getSyncPermissions,
   getSyncQuestions,
+  setPipelineAbort,
+  triggerPipelineReconnect,
 } from "./sync-refs"
 
 // Persisted metadata caches

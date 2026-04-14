@@ -13,6 +13,17 @@ let _sdk: OpencodeClient | null = null
 let _childStores: ChildStoreManager | null = null
 let _directory: string = ""
 let _registerSessionDirectory: ((sessionID: string, directory: string) => void) | null = null
+let _pipelineAbort: (() => void) | null = null
+
+/** Set the pipeline abort function for external coordination (e.g., ConnectivityManager) */
+export function setPipelineAbort(abortFn: () => void) {
+  _pipelineAbort = abortFn
+}
+
+/** Trigger pipeline SSE reconnect — aborts current stream so it restarts */
+export function triggerPipelineReconnect() {
+  _pipelineAbort?.()
+}
 
 export function setSyncRefs(
   sdk: OpencodeClient,

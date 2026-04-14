@@ -1,0 +1,20 @@
+{
+	"appId": "com.openchamber.mobile",
+	"appName": "OpenChamber",
+	"webDir": "../web/dist",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		},
+		"StatusBar": {
+			"style": "DARK"
+		}
+	},
+	"android": {
+		"allowMixedContent": true
+	}
+}

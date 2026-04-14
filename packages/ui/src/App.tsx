@@ -19,6 +19,7 @@ import { usePushVisibilityBeacon } from '@/hooks/usePushVisibilityBeacon';
 import { usePwaManifestSync } from '@/hooks/usePwaManifestSync';
 import { usePwaInstallPrompt } from '@/hooks/usePwaInstallPrompt';
 import { useWindowTitle } from '@/hooks/useWindowTitle';
+import { useConnectivityManager } from '@/hooks/useConnectivityManager';
 import { useConfigStore } from '@/stores/useConfigStore';
 import { hasModifier } from '@/lib/utils';
 import { isDesktopLocalOriginActive, isDesktopShell, isTauriShell, restartDesktopApp } from '@/lib/desktop';
@@ -469,6 +470,7 @@ function App({ apis }: AppProps) {
   usePwaInstallPrompt();
 
   useWindowTitle();
+  useConnectivityManager();
 
   useRouter();
 

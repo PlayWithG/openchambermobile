@@ -16,13 +16,14 @@ const STATE_COLORS = {
   connected: 'var(--color-status-success)',
   reconnecting: 'var(--color-status-warning)',
   disconnected: 'var(--color-status-error)',
+  paused: 'var(--color-status-info)',
 } as const;
 
 /** Fixed height to prevent layout shift */
 const BAR_HEIGHT = '2rem'; // h-8
 
 interface ConnectionStatusBarInnerProps {
-  state: 'connected' | 'reconnecting' | 'disconnected';
+  state: 'connected' | 'reconnecting' | 'disconnected' | 'paused';
   reconnectAttempt: number;
 }
 
@@ -101,6 +102,22 @@ const ConnectionStatusBarInner = React.memo<ConnectionStatusBarInnerProps>(
               </button>
             </div>
           );
+
+        case 'paused':
+          // Paused = app in background, minimal UI (app is hidden anyway)
+          return (
+            <div
+              className="flex items-center justify-center"
+              style={{ height: BAR_HEIGHT }}
+            >
+              <span
+                className="text-xs text-foreground/60"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Paused
+              </span>
+            </div>
+          );
       }
     };
 
@@ -127,14 +144,14 @@ ConnectionStatusBarInner.displayName = 'ConnectionStatusBarInner';
  * Uses leaf selectors to subscribe only to connection state changes.
  */
 export const ConnectionStatusBar: React.FC = () => {
+  // Always call hooks - React requires hooks to be called unconditionally
+  const state = useConnectionState();
+  const reconnectAttempt = useReconnectAttempt();
+
   // Early return for non-mobile platforms
   if (!isCapacitorPlatform()) {
     return null;
   }
-
-  // Leaf selectors — subscribe only to state changes, not entire store
-  const state = useConnectionState();
-  const reconnectAttempt = useReconnectAttempt();
 
   return <ConnectionStatusBarInner state={state} reconnectAttempt={reconnectAttempt} />;
 };

@@ -17,8 +17,6 @@ const config: CapacitorConfig = {
     },
   },
   android: {
-    minSdkVersion: 26,
-    targetSdkVersion: 34,
     allowMixedContent: true,
   },
 };

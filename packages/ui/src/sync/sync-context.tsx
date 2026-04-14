@@ -13,7 +13,7 @@ import { bootstrapGlobal, bootstrapDirectory } from "./bootstrap"
 import { retry } from "./retry"
 import { updateStreamingState } from "./streaming"
 import { setActionRefs } from "./session-actions"
-import { setSyncRefs } from "./sync-refs"
+import { setSyncRefs, setPipelineAbort } from "./sync-refs"
 import { stripMessageDiffSnapshots, stripSessionDiffSnapshots } from "./sanitize"
 import { syncDebug } from "./debug"
 import { opencodeClient } from "@/lib/opencode/client"
@@ -1101,7 +1101,7 @@ export function SyncProvider(props: {
   useEffect(() => {
     const reconnectResyncing = new Set<string>()
 
-    const { cleanup } = createEventPipeline({
+    const { cleanup, abort: pipelineAbort } = createEventPipeline({
       sdk: props.sdk,
       onEvent: (directory, payload) => {
         handleEvent(directory, payload, childStores, routingIndex)
@@ -1122,6 +1122,10 @@ export function SyncProvider(props: {
         }
       },
     })
+
+    // Register pipeline abort for external coordination (e.g., ConnectivityManager)
+    setPipelineAbort(pipelineAbort)
+
     return cleanup
   }, [props.sdk, childStores, routingIndex])
 

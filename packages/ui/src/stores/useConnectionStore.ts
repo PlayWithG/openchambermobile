@@ -9,7 +9,7 @@
 
 import { create } from 'zustand';
 
-export type ConnectionState = 'connected' | 'reconnecting' | 'disconnected';
+export type ConnectionState = 'connected' | 'reconnecting' | 'disconnected' | 'paused';
 
 interface ConnectionStore {
   /** Current connection state */
@@ -65,6 +65,11 @@ export const useConnectionStore = create<ConnectionStore>()((set) => ({
           state: newState,
           reconnectAttempt: prev.reconnectAttempt + 1,
         };
+      }
+
+      // On transition to paused: update state (e.g., app backgrounded on mobile)
+      if (newState === 'paused') {
+        return { state: newState };
       }
 
       return { state: newState };
