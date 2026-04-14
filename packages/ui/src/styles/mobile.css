@@ -8,13 +8,12 @@
 }
 
 @media (max-width: 1024px) {
-:root.mobile-pointer:not(.desktop-runtime) {
+  :root.mobile-pointer:not(.desktop-runtime) {
     --is-mobile: 1;
     --device-type: 'mobile';
     --font-scale: 0.9;
+  }
 }
-   }
- }
 
 /* ------------------------------------------------------------------ */
 /* Android / Capacitor specific adaptations                           */
