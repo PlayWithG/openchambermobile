@@ -1,0 +1,27 @@
+{
+  "name": "@openchamber/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd ../ui && bun run build && cd ../mobile && npx cap sync",
+    "build:android": "npx cap sync && npx cap open android",
+    "dev": "npx cap run android --livereload --external",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/network": "^7.0.0",
+    "@capacitor/preferences": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "typescript": "~5.8.3"
+  }
+}

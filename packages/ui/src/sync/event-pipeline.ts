@@ -40,6 +40,19 @@ export type EventPipelineInput = {
   onEvent: (directory: string, payload: Event) => void
   /** Called after SSE reconnects (visibility restore or heartbeat timeout). */
   onReconnect?: () => void
+  /**
+   * External connectivity state callback — when this changes to 'disconnected',
+   * external code (e.g. ConnectivityManager) can abort the SSE stream.
+   * 
+   * This enables wiring the pipeline to mobile lifecycle events:
+   * - When app goes to background -> connectivity manager sets 'disconnected'
+   * - When network is lost -> connectivity manager sets 'disconnected'
+   * - External code can then call pipeline.abort() to stop the current stream
+   * 
+   * NOTE: The pipeline does NOT call this callback itself. It's exposed for
+   * consumers to wire connectivity state into the pipeline lifecycle.
+   */
+  onConnectivityStateChange?: (state: 'connected' | 'reconnecting' | 'disconnected') => void
 }
 
 const normalizeEventType = (payload: Event): Event => {
@@ -90,7 +103,7 @@ type DirectoryQueue = {
 }
 
 export function createEventPipeline(input: EventPipelineInput) {
-  const { sdk, onEvent, onReconnect } = input
+  const { sdk, onEvent, onReconnect, onConnectivityStateChange } = input
   const abort = new AbortController()
   let hasConnected = false
 

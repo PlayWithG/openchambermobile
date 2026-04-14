@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+include ':app'
+include ':capacitor-android'
+project(':capacitor-android').projectDir = new File(rootProject.getProjectDir(), '../node_modules/@capacitor/android')

@@ -1,0 +1,32 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Bun 1.3.5, Node >=20, React 19.1.1, TypeScript, Vite 7.1.2, Tailwind v4, Zustand 5.0.8, Express 5.1.0, Tauri v2
+  Architecture: Monorepo with 4 workspaces (web, ui, desktop, vscode), Zustand for state, modular server lib (quota, git, github, opencode, notifications, terminal, tts, skills-catalog)
+  Testing: No test runner detected
+  Style: ESLint, TypeScript (tsc --noEmit)
+
+strict_tdd: false
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing code patterns and conventions
+    - Load relevant coding skills for the project stack
+  verify:
+    - Run type-check and lint if test infrastructure exists
+    - Compare implementation against every spec scenario
+  archive:
+    - Warn before merging destructive deltas (large removals)

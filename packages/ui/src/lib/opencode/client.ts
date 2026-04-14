@@ -15,6 +15,8 @@ import type {
 import type { PermissionRequest } from "@/types/permission";
 import type { QuestionRequest } from "@/types/question";
 import { waitForWorktreeBootstrap } from "@/lib/worktrees/worktreeBootstrap";
+import { sessionPersistence } from "./session-persistence";
+import { isCapacitorPlatform } from "./platform";
 
 // Use relative path by default (works with both dev and nginx proxy server)
 // Can be overridden with VITE_OPENCODE_URL for absolute URLs in special deployments
@@ -145,6 +147,11 @@ class OpencodeService {
     const requestedBaseUrl = desktopBase || baseUrl;
     this.baseUrl = ensureAbsoluteBaseUrl(requestedBaseUrl);
     this.client = createOpencodeClient({ baseUrl: this.baseUrl });
+    
+    // Persist session for mobile reconnection (async, non-blocking)
+    if (isCapacitorPlatform()) {
+      this.persistCurrentSession().catch(() => {});
+    }
   }
 
   getBaseUrl(): string {
@@ -1588,6 +1595,41 @@ class OpencodeService {
       console.warn('Failed to update OpenCode working directory:', error);
       throw error;
     }
+  }
+
+  // ---- Session Persistence (Mobile) ----
+
+  /** Persist current connection state for mobile reconnection */
+  async persistCurrentSession(): Promise<void> {
+    await sessionPersistence.save({
+      endpointUrl: this.baseUrl,
+      authToken: null,
+      sessionId: null,
+      lastConnectedAt: Date.now(),
+    });
+  }
+
+  /** Restore a persisted session on mobile app restart */
+  async restorePersistedSession(): Promise<string | null> {
+    const persisted = await sessionPersistence.load();
+    if (!persisted?.endpointUrl) return null;
+
+    // Validate that the persisted endpoint is still reachable
+    try {
+      const healthUrl = `${ensureAbsoluteBaseUrl(persisted.endpointUrl)}/health`;
+      const healthResponse = await fetch(healthUrl);
+      if (!healthResponse.ok) {
+        // Persisted endpoint is unreachable, clear it
+        await sessionPersistence.clear();
+        return null;
+      }
+    } catch {
+      // Endpoint unreachable
+      await sessionPersistence.clear();
+      return null;
+    }
+
+    return persisted.endpointUrl;
   }
 }
 

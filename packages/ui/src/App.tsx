@@ -46,6 +46,7 @@ import { AboutDialog } from '@/components/ui/AboutDialog';
 import { RuntimeAPIProvider } from '@/contexts/RuntimeAPIProvider';
 import { registerRuntimeAPIs } from '@/contexts/runtimeAPIRegistry';
 import { VoiceProvider } from '@/components/voice';
+import { ConnectionStatusBar } from '@/components/ConnectionStatusBar';
 import { useUIStore } from '@/stores/useUIStore';
 import { useGitHubAuthStore } from '@/stores/useGitHubAuthStore';
 import { useFeatureFlagsStore } from '@/stores/useFeatureFlagsStore';
@@ -661,8 +662,9 @@ function App({ apis }: AppProps) {
         <SyncProvider sdk={opencodeClient.getSdkClient()} directory={currentDirectory || ''}>
           <RuntimeAPIProvider apis={apis}>
             <TooltipProvider delayDuration={700} skipDelayDuration={150}>
-              <div className="h-full text-foreground bg-background">
-                <SyncAppEffects embeddedBackgroundWorkEnabled={embeddedBackgroundWorkEnabled} />
+<div className="h-full text-foreground bg-background">
+                  <ConnectionStatusBar />
+                  <SyncAppEffects embeddedBackgroundWorkEnabled={embeddedBackgroundWorkEnabled} />
                 <AgentManagerView />
                 <Toaster />
               </div>
